@@ -1,0 +1,102 @@
+0
+NOTE
+	# git log 查看提交日志(--stat参数查看每次提交的文件变更统计)
+	$ cd ~/Git
+	$ git log --stat
+
+1
+修改不能直接提交
+NOTE
+	# 实验 1
+
+	$ echo "a new line" >>welcome.txt
+	$ git diff
+	$ git commit -m "Append a new line"
+	$ git log --pretty=oneline # 精简模式oneline显示
+	-----提交失败-----需要add <file>-------
+	$ git add welcome.txt
+	$ git diff # 没有输出
+	$ git diff HEAD # 与HEAD(当前版本库的头指针)或master分支(当前工作分支)比较就会发现有差异
+	$ git status -s # 精简状态显示|
+	#对M标识的解释:
+		在第一列!的时候版本库中的文件与暂存区stage的文件比较有改动
+		在第二列!的时候工作区当前的文件与暂存区stage的文件比较有改动
+
+	# 显示工作区的最新改动:工作区与stage的比较
+	$ git diff
+	# 显示工作区与HEAD(当前工作分支)相比
+	$ git diff HEAD
+	# 显示stage与版本库HEAD比较
+	$ git diff --cached
+
+2
+理解Git暂存区(stage)
+NOTE
+	# 实验 2
+
+	# 撤销工作区中welcome.txt文件尚未提交的修改
+	$ git checkout -- welcome.txt
+	$ git status -s # 对于版本号低于1.7.3,执行git diff
+
+	# 查看.git/index文件的时间戳
+	$ ls --full-time .git/index
+	# 再次执行git status然后显示.git/index文件的时间戳
+	$ git status -s
+	$ ls --full-time .git/index
+
+	# 更改welcome.txt文件的时间戳,再执行git status
+	$ touch welcome.txt
+	$ git status -s
+	$ ls --full-time .git/index
+
+	# 实验结果:
+	  # 先使用时间戳,文件长度等信息进行比较,时间戳改变的再比较文件内容,如果文件内容没有改变,则将新时间戳记录到.git/index
+	  # .git/index实际上就是一个包含文件索引的目录树,记录了文件名和文件的状态信息,而文件内容保存在对象库.git/objects中,文件索引建立了文件和对象库实体之间的对应.
+	  # HEAD实际是指向master分支的一个游标
+	  # 执行git commit提交操作时,暂存区的目录树会写到对象库中
+	  # 执行 git reset HEAD 时,暂存区的目录树会被master分支指向的目录树所替换
+	  # 执行 git rm --cached <file> 时,会直接从暂存区删除文件
+	  # 执行 git checkout . | git checkout -- <file> 时,会用暂存区全部文件|指定文件替换工作区的文件<危险!会清除工作区中未添加到stage的改动>
+	  # 执行 git checkout HEAD .| git  checkout HEAD <file> 时,会用HEAD指向的master分支中的全部|指定文件替换暂存区和工作区的文件.<危险!双wipe!>
+	  # 详见图5-1
+
+3
+git diff
+NOTE
+	# 实验 3
+	# 工作区,暂存区和版本库的目录树浏览
+	$ git ls-tree -l HEAD
+	属性   对象类型	40位SHA1格式ID				文件大小	文件名
+	100644 blob 04dbe06cde90bd8769de8a329959f83f42de54e9      15 welcome.txt
+
+	# 浏览暂存区目录树之前:先清除工作区当前的改动,然后用暂存区内容刷新工作区
+	$ cd ~/Git
+	$ git clean -fd # 清除工作区中没有加入版本库的文件和目录
+	$ git checkout .
+
+	# 修改welcome.txt,再增加一个子目录和文件,并添加到暂存区,最后修改工作区
+	$ echo "bb" >> welcome.txt
+	$ mkdir -p a/b/c
+	$ echo "Hello" > a/b/c/hello.txt
+	$ git add .
+	$ echo "BBB" >> a/b/c/hello.txt
+	$ git status -s
+	AM a/b/c/hello.txt
+	M  welcome.txt
+	# 查看工作区中文件的大小
+	$ find . -path ./.git -prune -o -type  f -printf "%-20p\t%s\n"
+	./welcome.txt       	3
+	./a/b/c/hello.txt   	4
+	# 显示暂存区的目录树
+	$ git ls-files -s # <注意!第三个字段为暂存区的编号>
+	#! 如果想使用 git ls-tree命令,需要先将暂存区的目录树写入Git对象库,然后再使用
+	$ git write-tree # 输出就是写入Git对象库中的TreeID,将此作为下一条命令的input
+	$ git ls-tree -l b93925 # 只要不与其他对象的ID冲突,可随意缩写
+	  # 输出第一条是一个tree对象,即刚创建的一级目录a,使用-r递归显示,-t显示每棵树
+	  $ git write-tree|xargs git ls-tree -l -r -t
+
+4
+NOTE
+	# 不要使用git commit -a
+	# 保存当前工作进度
+	$ git stash
