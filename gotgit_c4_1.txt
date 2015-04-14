@@ -1,0 +1,87 @@
+0
+配置,创建版本库,第一次提交
+NOTE
+	#创建版本库前的一些配置
+	-设置Git的配置变量(一次性),设置会在用户主目录下.gitconfig或系统文件(/etc/gitconfig)中做永久记录
+	$ git config --global user.name "sennhviwang"
+	$ git config --global user.email sennhviwang@gmail.com
+	-设置一些别名(ie. git ci == git commit)
+	  -注册别名被所有用户使用
+	  $ sudo git config --system alias.st status
+	  $ sudo git config --system alias.ci commit
+	  -对本用户全局配置
+	  $ git config --global alias.st status
+	  $ git config --global alias.ci commit
+	-在Git命令输出中开启颜色显示
+	$ git config --global color.ui true
+
+	# 初始化版本库(example)
+	$ git init dir
+	$ echo 'hell' > welcome.txt
+	$ git add welcome.txt # 添加文件到版本库
+	$ git ci -m "initialized" # -m提供提交说明
+
+1
+.git
+NOTE
+	.git目录保存了版本库
+	文件.git/index记录了暂存区的状态
+
+	# 沿目录依次向上递归的过程
+	$ strace -e 'trace=file' git status
+	# 在工作区时找到版本库.git的所在位置
+	$ git rev-parse --git-dir
+	# 显示工作区根目录
+	$ git rev-parse --show-toplevel
+	# 显示相对于工作区的相对目录
+	$ git rev-parse --show-prefix
+	# 显示从当前目录后退到工作区的根的深度
+	$ git rev-parse --show-cdup
+
+	Git克隆可以降低因为版本库和工作区混杂一起导致破坏的风险.可以通过克隆操作在其他地方建立克隆,在有新的提交的时候执行向克隆版本库的git push推送操作.
+
+2
+git config
+NOTE
+	# 打开.git/config版本库配置文件进行编辑
+	$ cd ~/Git
+	$ git config -e
+
+	# 打开~/.gitconfig全局配置文件进行编辑
+	$ git config -e --global
+
+	# 打开/etc/gitconfig系统级配置文件进行编辑
+	$ git config -e --system
+	
+	# git config 用以读取INI配置文件中特定的键值 <section>.<key> <value>
+	$ git config core.bare 
+	# git config 用以修改INI配置文件中特定的键值
+	$ git config core.bare true
+
+	# 使用git config 可以编辑任何其他INI文件
+	$ GIT_CONFIG=test.ini git config a.a.c "hello, world!" #添加配置
+	$ GIT_CONFIG=test.ini git config a.a.c #读取配置
+
+3
+删除配置后的处理
+NOTE
+	# 删除全局配置文件中user.name和user.email
+	$ git config --unset --global user.name
+	$ git config --unset --global user.email
+	#测试提交者,由于工作区没修改Git默认不会提交,故加参数执行空白提交
+	$ cd ~/Git
+	$ git commit --allow-empty -m "who does commit"
+	$ git log --pretty=fuller #查看完整版日志
+	$ git config --global user.name "sennhviwang"
+	$ git config --global user.email sennhviwang@gmail.com
+	# 重新修改最新的提交,改正作者和提交者的错误信息
+	# --reset-author 将作者author的ID同步修改,否则只会影响提交者commit的ID
+	$ git commit --amend --allow-empty --reset-author
+
+4
+补充
+NOTE
+	Git可以随意设置提交的用户名和邮件地址信息.但是合作的时候就需要授权.
+	#备份工作成果
+	$ cd ~
+	$ git clone Git GitBakup

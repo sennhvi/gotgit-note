@@ -1,0 +1,36 @@
+0
+NOTE
+    diff
+    $diff -u hello world > diff.txt
+    合并格式显示文件差异
+     1	--- hello	2015-04-09 01:39:51.854654548 +0800
+     2	+++ world	2015-04-09 01:39:51.854654548 +0800
+     3	@@ -4,11 +4,11 @@ # 定位语句,分别都是显示4行之后11行
+     4	 from pylab import *
+     5	 
+     6	 im = array(Image.open('empire.jpg'))
+     7	+# the last parameter of gaussian_filter() is the standard deviation
+     8	 im2 = zeros(im.shape)
+     9	-
+    10	 for i in range(3):
+    11	-   # the last parameter of gaussian_filter() is the standard deviation
+    12	-   im2[:,:,i] = filters.gaussian_filter(im[:,:,i],5)
+    13	+    im2[:,:,i] = filters.gaussian_filter(im[:,:,i], 5)
+    14	+#im2 = filters.gaussian_filter(im,5)
+    15	 im2 = uint8(im2)
+    16	 
+    17	 imshow(im2)
+
+1
+NOTE
+    patch # 删除world或覆盖了world时,可使用patch恢复world文件
+    $cp hello world
+    $patch world < diff.txt
+          # 删除hello或覆盖了hello时,可使用patch -R恢复hello文件
+    $cp world hello
+    $patch -R hello < diff.txt
+
+2
+NOTE
+    CVS(concurrent versions system)
+    SVN(subversion)

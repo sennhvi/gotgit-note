@@ -1,0 +1,17 @@
+--- blurring_image_increased.py	2015-04-09 01:39:51.854654548 +0800
++++ blurring_image_origin.py	2015-04-09 01:39:51.854654548 +0800
+@@ -4,11 +4,11 @@
+ from pylab import *
+ 
+ im = array(Image.open('empire.jpg'))
++# the last parameter of gaussian_filter() is the standard deviation
+ im2 = zeros(im.shape)
+-
+ for i in range(3):
+-   # the last parameter of gaussian_filter() is the standard deviation
+-   im2[:,:,i] = filters.gaussian_filter(im[:,:,i],5)
++    im2[:,:,i] = filters.gaussian_filter(im[:,:,i], 5)
++#im2 = filters.gaussian_filter(im,5)
+ im2 = uint8(im2)
+ 
+ imshow(im2)
