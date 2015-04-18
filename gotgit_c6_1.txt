@@ -1,0 +1,65 @@
+0
+Git对象库
+NOTE
+	# 查看日志的详尽输出
+	$ git log -l --pretty=raw
+	# 研究Git对象ID
+	$ git cat-file -t e235d	# type
+	$ git cat-file -p e235d # pretty print contents of <object>
+	# 对象都保存在Git库中的objects目录下(ID前2位作为目录名,后38位作为文件名),查看:
+	$ for id in e45523 f4213d f3d34; do ls .git/objects/${id:0:2}/${id:2}*; done
+	# 通过commit对象之间的互相关联,可以很容易地识别出一条跟踪链,可以在运行git log 加--graph参数显示
+	# 最后一个提交没有parent属性,跟踪链到此终结,即提交的起点
+	$ git log --pretty=raw --graph e423df
+	# 分支管理|显示当前的工作分支
+	$ git branch
+	# .git/HEAD 中的内容是指向 refs/heads/master,其中的内容则是最新提交
+	# .git/refs 是保存引用的命名空间;.git/refs/heads 目录下的引用又称为分支; 显示引用对应的提交ID
+	$ git rev-parse master
+
+1
+SHA1哈希值
+NOTE
+	# 输出为固定160比特的数字摘要,比较著名的摘要算法有MD5,SHA1.使用命令sha1sum生成
+	# 实验 1
+	# 查看 提交 的SHA1哈希值生成方法
+	$ git cat-file commit HEAD # 查看HEAD对应的提交的内容
+	$ git cat-file commit HEAD |wc -c # 提交信息总字符 ,eg.234
+	# 在提交前添加内容commit 234<null>并生成sha1哈希值,结果和 git rev-parse HEAD 一致
+	$ (printf "commit 234\000"; git cat-file commit HEAD) | sha1sum
+	# 实验 2
+	# 查看 文件内容 的SHA1哈希值生成方法
+	$ git cat-file blob HEAD:welcome.txt # 查看版本库中welcome.txt的内容
+	$ git cat-file blob HEAD:welcome.txt |wc -c # 查看字节数,eg.25
+	# 在文件内容前添加blob 25<null>并生成sha1哈希值,结果和 git rev-parse HEAD:welcome.txt 一致
+	$ (printf "blob 25\000"; git cat-file blob HEAD:welcome.txt) | sha1sum
+	# 实验 3
+	# 查看 树 的SHA1哈希值生成方法
+	$ git cat-file tree HEAD^{tree} |wc -c # 查看字节数,eg.39
+	# 在树内容前添加tree 39<null>并生成sha1哈希值,结果和 git rev-parse HEAD^{tree} 一致
+	$ (printf "tree 39\000"; git cat-file tree HEAD^{tree}) | sha1sum
+
+2
+NOTE
+	# 使用master代表分支master中最新的提交,也可以使用全称refs/heads/master或heads/master
+	# 使用HEAD代表版本库中最近的一次提交
+	# 符号 ^ 用于指代父提交:
+	  HEAD^ 代表版本库的上一次提交,即最近一次提交的父提交
+	  HEAD^^ 代表HEAD^的父提交
+	# 对于一个有多个父提交的提交,^后加数字表示是第几个父提交.
+	  HEAD^1 == HEAD^
+	# 符号 ~<n>用于指代祖先提交
+	  e23fdf~5 == e23fdf^^^^^
+	# 访问提交所对应的树对象
+	  a232ff2^{tree}
+	# 访问某一次提交对应的文件对象
+	  af2f2fdf:path/to/file
+	# 访问stage中的文件对象
+	  :path/to/file
+
+	eg:
+	$ git rev-parse HEAD # 显示对应提交的ID
+	$ git cat-file -p e93 # 显示ID为e93的详细信息
+	$ git cat-file -p e93^ # 显示ID为e93父提交的详细信息
+	$ git rev-parse e93^{tree} # 显示提交ID为e93的树对象的ID
+	$ git rev-parse e93^^{tree} # 显示提交ID为e93父提交的树对象的ID
