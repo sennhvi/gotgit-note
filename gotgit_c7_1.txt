@@ -12,3 +12,60 @@ NOTE
 	# git reset 可以将游标指向任意一个存在的提交ID
 	# 将master重置到上一个旧的提交上
 	$ git reset --hard HEAD^ # --hard参数会破坏未提交的改动
+
+	# 实验 1
+	# 通过git log 查看到最早的提交ID
+	$ git log --graph --oneline
+	# 重置到最早的提交
+	$ git reset --hard 23fef12
+	# 重置后原始版本库都改变,修改也丢失,浏览历史也会改变,故最好在重置之前浏览历史
+
+1
+用reflog挽救错误的重置
+NOTE
+	# Git挽救机制:.git/logs目录下日志文件记录了分支的变更
+	# 默认非裸版本库(带有工作区)都提供分支日志功能,这因为带有工作区的版本库都有如下设置:
+	$ git config core.logAllRefUpdates # true
+	# 查看master分支指向的变迁,最新的文件变迁追加到文件末尾.
+	$ cat .git/logs/refs/heads/master # 注:没有logs的是最新提交
+	# git reflog,使用show命令可以显示文件的内容.最新的提交在最前面
+	$ git reflog show master |head -5 # 显示风格:<refname>@{<n>}
+	# 重置master为两次改变之前的值
+	$ git reset --hard master@{2}
+
+2
+了解git reset 命令
+NOTE
+	# git reset 命令用法
+	用法一:$ git reset [-q] [<commit>] [--] <paths>...
+	用法二:$ git reset [--soft|--mixed|--hard|--merge|--keep] [-q] [<commit>]
+	# 解读:
+	  [<commit>]都是可选项,可以使用引用或者提交ID,忽略相当于使用了HEAD的指向作为提交ID
+	  用法一:在命令中包含路径<paths>,为了防止路径和引用(ID)同名发生冲突,可以在paths前用--作为分隔,
+	  此用法不会重置引用,更不会改变工作区,只是指定提交状态(<commit>)下的文件(<paths>)替换掉暂存区中的文件
+
+	  用法二:会重置引用,根据不同的选项重置(详见图7-1)
+	    (1):替换引用的指向,引用指向新的提交ID
+	    (2):替换暂存区.替换后,暂存区的内容和引用指向的目录树一致
+	    (3):替换工作区.替换后,工作区内容和暂存区一直,也和HEAD指向的目录树内容相同
+
+	    --hard:该参数将会执行(1)(2)(3)
+	    --soft:该参数将执行(1)
+	    --mixed或无参数:该参数将执行(1)(2)
+	# 实验 2
+	# 仅用HEAD指向的目录树重置暂存区,工作区不受影响.相当于将之前用git add更新到暂存区的内容撤出暂存区.引用也未改变.
+	$ git reset
+	$ git reset HEAD
+	# 仅将文件filename的改动撤出暂存区,暂存区中的其他文件不改变,相当于对git add命令的反向操作
+	$ git reset -- filename
+	$ git reset HEAD filename
+	# 工作区和暂存区不改变,但是引用向前回退一次.当对最新提交的说明或者更改不满意时,撤销最新的提交以便重新提交
+	$ git reset --soft HEAD^
+	# 修补命令git commit --amend 相当于执行以下俩条
+	$ git reset --soft HEAD^
+	$ git commit -e -F .git/COMMIT_EDITMSG # 文件保存了上一次的提交日志
+	# 工作区不改变,暂存区回退到上一次提交之前,引用也回退一次
+	$ git reset HEAD^
+	$ git reset --mixed HEAD^
+	# 彻底撤销最近的提交.引用回退到前一次,工作区和暂存区都回退到前一次提交状态,自上一次以来的提交全部丢失
+	$ git reset --hard HEAD^
