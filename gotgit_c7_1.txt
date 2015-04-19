@@ -1,4 +1,14 @@
 0
 分支游标master探秘
 NOTE
-	
+	$ git log --graph --oneline
+	* 5846086 gotgit_c7
+	*   61f5abd Merge https://github.com/sennhviwang/gotgit_note
+	|\  
+	| * 2c9f00a Initial commit
+	* 86374d8 gotgit_c6_1
+
+	# 引用refs/heads/master当有新提交发生的时候自动指向最新的提交
+	# git reset 可以将游标指向任意一个存在的提交ID
+	# 将master重置到上一个旧的提交上
+	$ git reset --hard HEAD^ # --hard参数会破坏未提交的改动
