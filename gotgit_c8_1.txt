@@ -1,0 +1,21 @@
+0
+HEAD的重置即检出
+NOTE
+	# HEAD可以理解为头指针,是当前工作区的基础版本,当执行commit时,HEAD指向的提交将作为新提交的父提交
+	# 实验 1
+	# 查看当前HEAD的指向
+	$ cat .git/HEAD # 指向了master
+	# 查看master处于分支
+	$ git branch -v # master分支
+	# 使用 git checkout 检出该ID的父提交
+	$ git checkout a0b29c2^
+	# 查看当前HEAD的指向
+	$ cat .git/HEAD # 出现变化
+	# "分离头指针"状态指的是HEAD头指针指向了一个具体的提交ID,HEAD头指针被更改了:由指向master的分支变成了指向一个提交ID
+	# 查看最新提交的reflog出现同样结果,注意:显示的是HEAD头指针的变迁记录,而非master分支
+	$ git reflog -l
+	# 查看一下HEAD和master对应的提交ID,会发现指向不一样
+	# 执行git checkout 与git reset 不同,分支(master)的指向并没有改变,仍旧指向原有的提交ID
+	$ git rev-parse HEAD master
+	
+	# 实验 2
