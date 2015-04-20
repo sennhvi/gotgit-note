@@ -19,3 +19,63 @@ NOTE
 	$ git rev-parse HEAD master
 	
 	# 实验 2
+	# 在checkout的情况下add+commit
+	$ touch detached-commit.txt
+	$ git add detached-commit.txt
+	$ git status # Not currently on any branch.当前不处于任何分支
+	# 执行提交
+	$ git commit -m "commit in detached HEAD mode"
+	# 此时头指针指向了新的提交
+	$ cat .git/HEAD
+	# 查看日志发现新的提交是建立在之前的提交基础上
+	$ git log --graph --pretty=oneline
+	# 记录新的提交ID,然后切换到master分支上,会导致刚才的提交及日志消失
+	$ git checkout master
+	$ git show acc24ff
+
+1
+挽救分离头指针
+NOTE
+	# 使用git reset 可以将master重置到该测试提交,但是会丢掉原来的提交.需要使用合并(merge)操作
+	# 确认当前处于master分支
+	$ git branch -v
+	# 执行合并操作,将提交(acc24ff)合并到当前分支
+	$ git merge acc24ff
+	# 查看分支图
+	$ git log --graph --pretty=oneline
+	# 仔细查看最新提交,会有两个父提交
+	$ git cat-file -p HEAD
+
+2
+git checkout
+NOTE
+	# git checkout命令会重写工作区
+	  用法一: $ git checkout [-q] [<commit>] [--] <paths> ...
+	  # 省略commit相当于从暂存区进行检出.(reset默认值是HEAD,checkout默认值是index)
+	  # 因此reset一般用于重置暂存区(--hard 才重置工作区),checkout 用于覆盖工作区(<commit> 才也替换暂存区文件)
+	  # 不会改变HEAD头指针
+
+	  用法二: $ git checkout [<branch>]
+	  # 会改变HEAD头指针.<branch>是因为只有HEAD切换到一个分支才可以对提交进行跟踪,否则仍然会进入"分离头指针"状态.NOTE:在"分离头指针"状态下的提交不能被引用关联到.
+	  # 主要用于切换分支,省略<branch>相当于对分支进行状态检查
+	  
+	  用法三: $ git checkout [-m] [[-b|--orphan] <new_branch>] [<start_point>]
+	  # 主要创建和切换到新的分支(<new_branch>),新的分支从<start_point>指定的提交开始创建.
+
+3
+checkout基本用法
+NOTE
+	(1):更新HEAD以指向branch分支
+	(2):用branch指向的树更新暂存区
+	(3):用branch指向的树更新工作区
+	# 检出branch分支,完成(1)(2)(3)
+	$ git checkout branch
+	# 汇总显示工作区,暂存区与HEAD的差异
+	$ git checkout
+	$ git checkout HEAD
+	# 用暂存区中的filename文件来覆盖工作区中的filename文件.相当于取消自上次执行git add filename以来所有的本地修改--NOTE
+	$ git checkout -- filename
+	# 维持HEAD的指向不变.用branch指向的提交中的filename替换暂存区和工作区相应的文件.NOTE--会将暂存区和工作区中的filename文件直接覆盖
+	$ git checkout branch -- filename
+	# NOTE--取消所有本地的修改,相当于用暂存区的所有文件直接覆盖本地文件
+	$ git checkout -- .| git checkout .
