@@ -87,5 +87,11 @@ NOTE
 	$ git diff stash@{1}^1 stash@{1}
 	# 使用stash@{1}来恢复进度
 	$ git stash apply stash@{1}
-	$
+	# 显示进度列表,然后删除进度列表
+	$ git stash list
+	$ git stash clear
+	# 删除进度列表之后会发现stash相关引用和reflog消失
+	$ ls -l .git/refs/stash .git/logs/refs/stash
 
+3
+之后你就可以去研究stash源码了:-)
