@@ -34,4 +34,58 @@ NOTE
 2
 探秘　git stash
 NOTE
-	
+	# git stash命令实际调用了git-stash脚本执行命令.查看安装地址(其为shell编写)
+	$ git --exec-path
+	$ ls /usr/lib/git-core
+	$ file /usr/lib/git-core/git-stash # POSIX shell script
+	# 实验 1
+	$ echo bbbbbb >> welcome.txt
+	$ echo hello > hack-1.txt
+	$ git add hack-1.txt
+	$ git status -s # A hack-1.txt. M  welcome.txt
+	# 执行git stash保存工作进度
+	$ git stash save "hack-1" # 第一个stash
+	$ git status -s
+	$ ls
+	$ echo fix. > hack-1.txt
+	$ git stash # 另一个stash
+	$ git stash list # 查看list
+	# 实际上,git stash就是用前面介绍的引用和引用变更日志(reflog)来实现的.
+	# 多次的进度保存,实际上相当于引用refs/stash一次又一次的变化,而refs/stash的变化由reflog(即.git/logs/refs/stash)所记录下来.
+	$ git reflog show refs/stash
+	# 如何在引用refs/stash中同时保存暂存区的进度和工作区中的进度:
+	$ git log --graph --pretty=raw refs/stash -2
+	# 可以看出最新提交是一个合并提交.WIP:work in progress,代表了工作进度.index on master代表暂存区的进度.两个提交指向同一个树因为最后一次做进度保存时工作区相对于暂存区没有改变.
+
+*   commit 107c59262bc0c902d3851ff8df486686f871990e
+|\  tree ac9f6f7605a769d2ce0fd7bfd734d4ba5f36fca5
+| | parent 39023ca27c635067822c7f8cc185742ce999f40a
+| | parent d3ee0b44557fc8bc1277ff0ae057d8fa95858fcd
+| | author sennhviwang <sennhviwang@gmail.com> 1429629851 +0800
+| | committer sennhviwang <sennhviwang@gmail.com> 1429629851 +0800
+| | 
+| |     WIP on master: 39023ca rename all
+| |   
+| * commit d3ee0b44557fc8bc1277ff0ae057d8fa95858fcd
+|/  tree ac9f6f7605a769d2ce0fd7bfd734d4ba5f36fca5
+|   parent 39023ca27c635067822c7f8cc185742ce999f40a
+|   author sennhviwang <sennhviwang@gmail.com> 1429629851 +0800
+|   committer sennhviwang <sennhviwang@gmail.com> 1429629851 +0800
+|   
+|       index on master: 39023ca rename all
+
+	# 之前工作区,暂存区和版本库都是不同的,可以用于refs/stash实现机制的判断
+	# 用"原基线"代表进度保存时版本库的状态,即39023ca
+	# 用"原暂存区"代表进度保存时暂存区的状态,即提交cd8010c
+	# 用"原工作区"代表进度保存时工作区的状态,即提交dd3467
+	$ git log --graph --pretty=raw stash@{1} -3
+	# 原基线和原暂存区的比较
+	$ git diff stash@{1}^2^ stash@{1}^2
+	# 原暂存区和原工作区的比较
+	$ git diff stash@{1}^2 stash@{1}
+	# 原基线和原工作区的比较
+	$ git diff stash@{1}^1 stash@{1}
+	# 使用stash@{1}来恢复进度
+	$ git stash apply stash@{1}
+	$
+
