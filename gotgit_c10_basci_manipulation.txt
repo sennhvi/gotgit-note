@@ -39,4 +39,34 @@ NOTE
 2
 恢复删除的文件
 NOTE
+	# 从前一次提交中恢复文件
+	$ git cat-file -p HEAD~1:welcome.txt >welcome.txt
+	# 也可以使用git show命令取代git cat-file -p
+	$ git show HEAD~1:welcome.txt >welcome.txt
+	# 更简洁
+	$ git checkout HEAD~1 -- welcome.txt
 
+3
+移动文件
+NOTE
+	# 实验 2
+	# 通过将welcome.txt改名为rrrr文件来测试
+	$ git mv welcome.txt rrrr
+	# 等同于
+	$ mv welcome.txt rrrr
+	$ git add rrrr
+	$ git commit -m "..."
+
+4
+显示版本号
+NOTE
+	# tag-版本号-id
+	$ git describe
+	# 在提交日志中显示提交对应的里程碑(tag),--decorate 显示关联的引用
+	$ git log --oneline --decorate -4
+
+5
+选择性添加
+NOTE
+	# git add -i 提供交互式添加,显示了命令列表,使用数字|首字母进入功能.
+	# 
