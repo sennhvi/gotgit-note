@@ -69,4 +69,29 @@ NOTE
 选择性添加
 NOTE
 	# git add -i 提供交互式添加,显示了命令列表,使用数字|首字母进入功能.
-	# 
+
+6
+文件忽略
+NOTE
+	# 当对工作区某个目录或文件设置了忽略后,再执行git status时,其即使存在也不会显示为未跟踪状态
+	# 执行以下命令,将要忽略的文件写入
+	$ cat > .gitignore << EOF
+	>hello
+	>*.o
+	>EOF
+	# 提交.gitignore后,其可以放置在任何目录(其作用范围是所在及以下)
+	# 忽略文件有错误会造成后果,使用git status --ignored -s查看,并且不能使用git add -A和git add .添加其到暂存区,只有使用git add -f hello.h明确的文件名才可添加
+	# 忽略只对未跟踪文件有效,对已加入版本库文件无效
+	# 偷懒式提交:git commit -a -m "-a == add"
+	# 本地独享文件(与.gitignore不同)有两种方式:针对某一版本库.git/info/exclude;全局忽略core.excludesfile
+	# 忽略语法:*任意匹配;!取消忽略;/TODO只忽略此目录下的TODO文件;build/忽略所有build/目录下的文件
+
+7
+文件归档
+NOTE
+	# 基于最新提交建立归档文件
+	$ git archive -o lastest.zip HEAD
+	# 只将目录src和doc建立到归档partial.tar中
+	$ git archive -o partial.tar HEAD src doc
+	# 基于里程碑v1.0归档,并加上前缀1.0
+	$ git archive --format=tar --prefix=1.0/ v1.0 |gzip >foo-1.0.tar.gz
