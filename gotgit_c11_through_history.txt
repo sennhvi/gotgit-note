@@ -1,0 +1,15 @@
+0
+gitk(只能用于浏览版本库)
+NOTE
+	# 显示所有分支
+	$ gitk -all
+	# 显示2周以来的所有提交
+	$ gitk --since="2 weeks ago"
+	# 显示某个里程碑以来,针对某些目录的提交
+	$ gitk v2.6.12.. include/scsi drivers/scsi
+	# 绿色的master分支,黄色的里程碑,灰色的stash
+
+1
+gitg
+NOTE
+	
