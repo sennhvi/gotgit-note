@@ -12,4 +12,76 @@ NOTE
 1
 gitg
 NOTE
-	
+	# 安装
+	$ sudo aptitude install gitg
+
+2
+qgit
+NOTE
+	# 安装
+	$ sudo aptitude install qgit
+
+3
+版本表示法
+NOTE
+	# git rev-parse显示分支
+	$ git rev-parse --symbolic --branches
+	# 显示里程碑
+	$ git rev-parse --symbolic --tags
+	# 显示定义的所有引用
+	$ git rev-parse --symbolic --glob=refs/*
+	# 将一个Git对象表达式表示为对应的sha1哈希值
+	$ git rev-parse HEAD
+	# 命令git describe的输出解析
+	$ git describe # A-1-g232332
+	$ git rev-parse A-1-g232332
+	# 同时显示多个表达式的哈希值
+	$ git rev-parse master refs/heads/master
+	# 可以用哈希值的前几位指代整个哈希值
+	$ git rev-parse 6652 6652f23f
+	# 里程碑的两种表示法指向相同的对象
+	$ git rev-parse A refs/tags/A
+	# 更多用法
+	$ git rev-parse A^{} A^0 A^{commit}
+	$ git rev-parse A^ A^1 B^0
+	$ git rev-parse A^^3^2 F^2 J^{}
+	$ git rev-parse A^{tree}:src/Makefile
+	$ git rev-parse :gitg.png HEAD:gitg.png
+
+4
+版本范围表示法
+NOTE
+	# 一个提交ID实际可以代表一个版本列表
+	$ git rev-list --oneline A
+	# 或者多个版本
+	$ git rev-list --oneline D F
+	# 排除显示
+	$ git rev-list --oneline ^G D
+	# 同上的表示法:俩点
+	$ git rev-list --oneline G..D
+	# 三点表示法,俩个版本共同访问到的除外
+	$　git rev-list --oneline B...C
+	# 自身除外
+	$ git rev-list --oneline B^@
+	# 不包括其历史提交
+	$ git rev-list --oneline F^!
+
+5
+浏览日志
+NOTE
+	# 显示日志的范围
+	$ git log --oneline F^! D
+	# 分支图显示设置
+	$ git config --global alias.glog "log --graph"
+	# 显示最近几条日志
+	$ git log -3 --pretty=oneline
+	$ git log -p -1 # -p 显示改动
+	# 显示每次提交的变更概要(--stat)
+	$ git log --stat --oneline I..C
+	# 定制输出
+	$ git log --pretty=raw -1 # 原始显示
+	$ git log --pretty=fuller -1 # 同时显示作者和提交者
+	$ git log --pretty=oneline -1 # 精简输出
+	# 查看特定提交
+	$ git show D --stat
+	$ git cat-file -p D^0 # -p 美观输出
