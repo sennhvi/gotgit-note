@@ -103,3 +103,15 @@ git blame
 NOTE
 	# 逐行显示文件,行首具体信息
 	$ git blame -L 6,+5 README
+
+8
+获取历史版本
+NOTE
+	# 查看历史提交的目录树
+	$ git ls-tree <tree-ish> <paths>
+	# 整个工作区切换到历史版本
+	$ git checkout <commit>
+	# 检出某文件的历史版本
+	$ git checkout <commit> -- <paths>
+	# 检出某文件的历史版本到其他文件名
+	$ git show <commit>:<file> > new_name
