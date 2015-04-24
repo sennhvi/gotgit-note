@@ -85,3 +85,21 @@ NOTE
 	# 查看特定提交
 	$ git show D --stat
 	$ git cat-file -p D^0 # -p 美观输出
+
+6
+git diff
+NOTE
+	# 比较里程碑A和B
+	$ git diff A B
+	# 比较工作区和里程碑A
+	$ git diff A
+	# 比较暂存区和里程碑A
+	$ git diff --cached A
+	# 逐词比较
+	$ git diff --word-diff
+
+7
+git blame
+NOTE
+	# 逐行显示文件,行首具体信息
+	$ git blame -L 6,+5 README
