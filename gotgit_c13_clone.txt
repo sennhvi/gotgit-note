@@ -30,6 +30,7 @@ NOTE
 	# 使用/repo/demo.git作为参数,推送成功
 	$ git push /repo/demo.git
 	# 以上方法更适用于本地镜像,因为可以直接在工作区修改和提交并推送
+
 	# 多仓库推送，设置remote
 	$ git remote set-url origin --push --add <a remote>
 	$ git remote set-url origin --push --add <another remote>
