@@ -47,3 +47,16 @@ NOTE
 	$ git push /repo/demo-init.git master:master
 	# 查看远程版本库的分支
 	$ git ls-remote /repo/demo-init.git
+
+sennhviwang@EXP-PC ~/GitBak $ git ls-remote gotgit_note.git/
+a25b2e7a94b20d9051eebfc26f5eda79aeafc429	HEAD
+a25b2e7a94b20d9051eebfc26f5eda79aeafc429	refs/heads/master
+sennhviwang@EXP-PC ~/GitBak/gotgit_note.git $ git log --oneline -2
+a25b2e7 delete test
+ba16c46 modify c13
+sennhviwang@EXP-PC ~/GitBak $ cd ../Git
+sennhviwang@EXP-PC ~/Git $ git log --oneline -2
+a25b2e7 delete test
+ba16c46 modify c13
+
+
