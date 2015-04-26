@@ -30,6 +30,9 @@ NOTE
 	# 使用/repo/demo.git作为参数,推送成功
 	$ git push /repo/demo.git
 	# 以上方法更适用于本地镜像,因为可以直接在工作区修改和提交并推送
+	# 多仓库推送，设置remote
+	$ git remote set-url origin --push --add <a remote>
+	$ git remote set-url origin --push --add <another remote>
 
 3
 创建生成裸版本库
@@ -37,5 +40,9 @@ NOTE
 	$ git init --bare /repo/demo-init.git
 	$ ls -F /repo/demo-init.git
 	$ git --git-dir=/repo/demo-init.git config core.bare
-	# 去源工作区为空版本库推送一些内容，会报错，因为没设定推送分支
+	# 去源工作区为空版本库推送一些内容，会报错，因为没设定推送分支，而且当前分支也没有注册到远程的某个分支，将检查远程分支是否有和本地相同的分知名（如master)，有则推送，无则报错．
 	$　git push /repo/demo-init.git
+	# 修改后：
+	$ git push /repo/demo-init.git master:master
+	# 查看远程版本库的分支
+	$ git ls-remote /repo/demo-init.git
