@@ -1,0 +1,15 @@
+0
+git clone
+NOTE
+	# 将<repository>指向的版本库创建一个克隆到<directory>目录
+	$ git clone <repository> <directory>
+	# 克隆版本库的内容(不包含工作区),即裸版本库
+	$ git clone --bare <repository> <directory.git>
+	# 同上,并且裸版本库对上游版本库进行了注册,这样可以在裸版本库中使用git fetch命令和上游版本库进行持续同步
+	$ git clone --mirror <repository> <directory.git>
+
+1
+对等工作区
+NOTE
+	# 对于无参数使用clone,实现对等工作区,只能实现一种操作,在备份中使用pull从源中拉回新的提交实现同步.
+	# 在执行git clone后,克隆出来的backup版本库中对源版本库进行了注册,所以在backup版本库中执行拉回操作,无须设置上游版本库的地址
