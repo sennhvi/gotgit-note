@@ -12,4 +12,30 @@ NOTE
 对等工作区
 NOTE
 	# 对于无参数使用clone,实现对等工作区,只能实现一种操作,在备份中使用pull从源中拉回新的提交实现同步.
-	# 在执行git clone后,克隆出来的backup版本库中对源版本库进行了注册,所以在backup版本库中执行拉回操作,无须设置上游版本库的地址
+	# 在执行git clone后,克隆出来的backup版本库中对源版本库进行了注册,所以在backup版本库中执行拉回操作,无须设置上游版本库的地址,在backup版本库中查看对上游版本库的注册信息
+	$ git remote -v # 保存在.git/config
+
+2
+克隆生成裸版本库
+NOTE
+	# 克隆生成裸版本库
+	$ git clone --bare /demo /repo/demo.git
+	# 查看目录内容
+	$ ls -F /repo/demo.git
+	# 查看core.bare配置为true
+	$ git --git-dir=/repo/demo.git config core.bare
+	# 进入/demo生成一些提交测试
+	$ git commit --allow-empty -m "sync test"
+	# 在/demo不带参数执行git push,因为未设定上游远程版本库,会报错
+	# 使用/repo/demo.git作为参数,推送成功
+	$ git push /repo/demo.git
+	# 以上方法更适用于本地镜像,因为可以直接在工作区修改和提交并推送
+
+3
+创建生成裸版本库
+NOTE
+	$ git init --bare /repo/demo-init.git
+	$ ls -F /repo/demo-init.git
+	$ git --git-dir=/repo/demo-init.git config core.bare
+	# 去源工作区为空版本库推送一些内容，会报错，因为没设定推送分支
+	$　git push /repo/demo-init.git
