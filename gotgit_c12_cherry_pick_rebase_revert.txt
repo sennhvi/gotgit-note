@@ -68,4 +68,25 @@ NOTE
 3
 rebase
 NOTE
+	# 对提交执行变基操作,即将指定范围的提交"嫁接"到另一个提交上,范围为(<since>,<till>]
+	$ git rebase --onto <newbase> <since> <till>
 	
+	# 变基操作的过程:
+	$ git checkout # 切换到<till>,如果只想的不是一个分支,则是在detached HEAD状态进行.则变基结束后需要对master分支执行重置以实现变基结果在分支中生效
+	# 将<since>..<till>所提交的范围写入一个临时文件
+	# 将当前分支强制重置(git reset --hard)到<newbase>
+	# 从临时文件的提交列表中,将提交按顺序重新提交到重置后的分支上
+	# 如果遇到提交已经在分支中包含,则跳过该提交
+	# 如果在提交过程遇到冲突,则变基过程暂停,冲突解决后执行git rebase --continue继续或者 git rebase --skip 跳过提交或者执行 git rebase --abort终止
+	# 将E和F提交跳过D,嫁接到C上
+	$ git rebase --onto C E^ F
+	# 交互式变基
+	$ git rebase -i D^ # 修改文件保存退出即可
+
+4
+反转提交
+NOTE
+	# 重新做一次新的提交,相当于用错误的历史提交的反向提交,来修正错误的历史提交
+	$ git show HEAD
+	# 在不改变提交的前提下撤销对其修改
+	$ git revert HEAD
