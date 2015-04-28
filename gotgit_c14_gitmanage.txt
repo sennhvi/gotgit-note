@@ -1,0 +1,100 @@
+0
+克隆版本的对象和引用
+NOTE
+	# 实验 1
+	$ git clone /repo/demo.git demobak
+	# 进入克隆的版本库,查看包含的引用
+	$ git show-ref
+	$ find .git/refs/ -type f
+	$ git pack-refs --all
+	$ find .git/refs/ -type f #会发现引用目录下的文件更少
+	# 原本在.git/refs/下的引用文件都被打包了,放到一个.git/packed-refs中
+	$ head -4 .git/packed-refs
+	# 查看Git的对象在对象库中的存储,发现也都被打包.pack文件和.idx索引文件
+	# Git对于以SHA1哈希值作为目录名和文件名保存的对象叫做松散对象,将其打包后会提高访问效率
+	$ find .git/objects/ -type f
+	# 查看索引中包含的对象
+	$ git show-index < .git/objects/pack/pack-*.idx |head -5
+
+1
+暂存区操作引入的临时对象
+NOTE
+	# 暂存区操作有可能在对象库中产生临时对象
+	# 实验 2
+	# 准备一个大的压缩文件,10MB左右,将其复制到工作区,复制两份bigfile,bigfile.dup
+	$ git add bigfile bigfile.dup
+	# 查看磁盘空间占用
+	$ du -sh # 33M
+	# 其中版本库只占11MB,是工作区的一半
+	$ du -sh .git/ # 11M
+	# 查看版本库中对象库的文件,会发现多出一个松散对象(Git对于文件的保存是将内容保存为blob对象中,和文件名无关,相同内容的不同文件会共享一个blob对象
+	$ find .git/objects/ -type f
+	$ git reset HEAD # 将添加的文件撤出暂存区
+	# 查看版本库中包含的没有被任何引用关联的松散对象
+	$ git fsck # 得到的对象就是通过暂存区操作引入的打文件的内容
+	# 清理上述松散对象
+	$ git prune
+
+2
+重置操作引入的对象
+NOTE
+	# 使用重置命令抛弃的提交和文件不会被轻易清除
+	# 实验 3
+	$ git add bigfile bigfile.dup
+	$ git commit -m "add bigfiles"
+	$ du -sh .git/
+	# 重置操作,抛弃刚才的提交
+	$ git reset --hard HEAD^
+	$ du -sh .git/ # 11M
+	# 查看对象库,发现三个松散对象
+	$ find .git/objects/ -type f
+	$ git cat-file -t 234dff # 查看对象类型
+	# 执行git prune,版本库占用没有变化
+	$ git prune
+	$ du -sh .git/
+	# 执行git fsck查看不到未被关联到的对象
+	$ git fsck
+	# 除非如此做
+	$ git fsck --no-reflogs
+	# reflog是防止误操作的最后一道闸门
+	$ git reflog # 可以看到撤销操作在reflog的记录,因此Git认为提交和文件可以被追踪到,故不能用git prune删除
+	# 如果确认要丢弃不想要的对系那个,需要对版本库的reflog做过期操作,相当于将.git/logs/下的文件清空
+	$ git reflog expire --all # 不能让刚撤销的提交过期,因为默认让90天的数据过期
+	$ git reflog
+	# 需要为其提供--expire=<date>参数
+	$ git reflog expire --expire=now --all
+	$ git reflog # 均过期无记录
+	# 之后提交对应的commit对象,tree对象和blob对象就会成为未被关联的对象,可以清理
+	$ git prune
+
+3
+git-gc
+NOTE
+	##更常用命令git gc,其进行的一系列操作如下:
+
+	# 对分散在.git/refs下的文件打包到.git/packed-refs中,如果没有将配置gc.packrefs关闭,就会执行如下:
+	$ git pack-refs --all --prune # 实现对引用的打包
+	# 丢弃90天前的reflog记录
+	$ git reflog expire --all 
+	# 对松散对象进行打包
+	$ git repack # 凡是有引用关联的对象都被打包
+	# 清楚未被关联的对象,默认只清除2周以前的松散对象,通过对git gc提供--prune=<date>参数
+	# 其他清理,运行git rerere gc 对合并冲突的历史记录进行过期操作
+	# 不带参数调用git gc虽然不会清除尚未过期(2周)的大文件,但是会将被关联的对象从打包文件中移出成为松散文件
+	# 未被关联的对象重新成为松散文件
+
+4
+git管家的自动执行
+NOTE
+	# 高级版本会自动掉用git gc --auto,以下会触发
+	$ git merge
+	$ git receive-pack # 版本库接受其他版本库push来的提交后
+	$ git rebase -i # 交互式变基
+	$ git am # 对mbox邮箱中通过邮件提交的补丁进行应用
+	# 即 对于提供共享式"写操作"的Git版本库,可以免维护.
+	# 对于非独立工作的本地工作区,可以免维护,git pull会触发
+	# 松散对象只有超过一定的数量才会执行.采用取样搜索测试数量
+
+--------------------BASIC---------------------
+-------------------THE END--------------------
+-------------LEARN SOMETHING NEW!~------------
